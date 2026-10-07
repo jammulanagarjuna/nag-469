@@ -1,0 +1,42 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class DatabaseConnectionExample {
+
+    // Database credentials and URL configuration
+    private static final String URL = "jdbc:mysql://localhost:3306/your_database_name";
+    private static final String USER = "root";
+    private static final String PASSWORD = "your_password";
+
+    public static void main(String[] args) {
+        String sqlQuery = "SELECT id, name, email FROM users WHERE id = ?";
+
+        // Try-with-resources automatically closes Connection, PreparedStatement, and ResultSet
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
+            
+            System.out.println("Successfully connected to the database!");
+
+            // Bind the integer parameter to the '?' placeholder in the query
+            preparedStatement.setInt(1, 101);
+
+            // Execute the query and manage results
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    String name = resultSet.getString("name");
+                    String email = resultSet.getString("email");
+
+                    System.out.printf("ID: %d | Name: %s | Email: %s%n", id, name, email);
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Database connection or query execution failed!");
+            e.printStackTrace();
+        }
+    }
+}
